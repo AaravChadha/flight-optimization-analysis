@@ -99,6 +99,28 @@ def test_no_flight_moved_into_closed_bin():
         assert set(grp) <= open_bins[a], f"arrival moved into closed bin at {a}"
 
 
+def test_no_bin_grew_beyond_growth_cap():
+    """Shoulder protection: no bin may exceed BIN_GROWTH_CAP x its baseline
+    mean for that time of day, unless its own same-day baseline was higher."""
+    sel, flights, shifted = _load()
+    base = pd.read_csv(config.DATA_DERIVED / "baseline_bins.csv")
+    opt = pd.read_csv(config.DATA_DERIVED / "optimized_bins.csv")
+    n_days = shifted["date"].nunique()
+    mean = base.groupby(["airport", "bin"])["load"].sum() / n_days
+    cap = np.ceil(config.BIN_GROWTH_CAP * mean)
+    merged = opt.merge(
+        base, on=["airport", "date", "bin"], how="left",
+        suffixes=("_after", "_before"),
+    ).fillna({"load_before": 0})
+    caps = np.array(
+        [cap.get((a, b), 0) for a, b in zip(merged["airport"], merged["bin"])]
+    )
+    allowed = np.maximum(caps, merged["load_before"].to_numpy())
+    assert (merged["load_after"].to_numpy() <= allowed).all(), (
+        "a bin grew beyond the shoulder-growth cap"
+    )
+
+
 def test_no_airport_day_peak_increased():
     sel, _, _ = _load()
     base = pd.read_csv(config.DATA_DERIVED / "baseline_bins.csv")

@@ -25,6 +25,10 @@ Constraints
   OPEN_BIN_MIN_MEAN movements/day), so smoothing stays inside each
   airport's observed operating hours - night-quiet airports gain no
   night flights.
+* shoulder protection: a gaining bin may not exceed BIN_GROWTH_CAP x its
+  baseline mean load for that time of day (or its own same-day baseline,
+  if higher) - peak drainage cannot balloon the early-morning or
+  late-evening shoulders.
 
 Objective (greedy)
 ------------------
@@ -140,6 +144,16 @@ def optimize(flights: pd.DataFrame, airports, window: int,
         for a in airports
     }
 
+    # Shoulder protection: gaining bins may not exceed BIN_GROWTH_CAP x
+    # their baseline mean for that time of day (or their own same-day
+    # baseline, if higher) - drained peaks cannot balloon the shoulders.
+    base_loads = dict(loads)
+    growth_cap = {
+        (a, bb): int(np.ceil(config.BIN_GROWTH_CAP * bin_of_day_total[(a, bb)] / n_days))
+        for a in airports
+        for bb in range(96)
+    }
+
     deltas = [s for s in range(-window, window + 1, step)]
 
     def feasible(f: int, s: int) -> bool:
@@ -211,8 +225,11 @@ def optimize(flights: pd.DataFrame, airports, window: int,
                         break
                     gain = loads[new] + 1
                     a2, d2 = new[0], new[1]
-                    cap = peak if (a2, d2) == (apt, day) else ad_max(a2, d2)
-                    if gain >= cap:
+                    if gain > max(growth_cap[(a2, new[2])], base_loads.get(new, 0)):
+                        ok = False
+                        break
+                    peak_cap = peak if (a2, d2) == (apt, day) else ad_max(a2, d2)
+                    if gain >= peak_cap:
                         ok = False
                         break
                     worst = max(worst, gain)

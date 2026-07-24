@@ -31,23 +31,33 @@ import prepare
 from optimize import optimize
 
 
-def loads_table(flights: pd.DataFrame, shift, airports) -> pd.DataFrame:
+def loads_table(flights: pd.DataFrame, shift, airports,
+                grid_offset_min: int = 0) -> pd.DataFrame:
     """Long-form (airport, day, bin, load) with shifts applied.
 
     Only service days of the selected month are kept (arrivals spilling
     into the next month are excluded from metrics; symmetric undercount of
     inbound red-eyes on day 1 is noted in limitations - both effects sit
     in near-empty overnight bins and do not touch daytime peaks).
+
+    grid_offset_min shifts the binning grid itself (robustness check: if
+    peak reductions were an artifact of bin boundaries, they would not
+    survive re-measurement on a half-bin-offset grid).
     """
     b = config.BIN_MINUTES
     day = pd.to_datetime(flights["date"])
     month_days = set(day.dt.date.astype(str))
 
     dep = flights[flights["origin"].isin(airports)]
-    dep_t = dep["dep_min"].to_numpy() + shift[dep.index.to_numpy()]
+    dep_abs = (
+        dep["dep_min"].to_numpy() + shift[dep.index.to_numpy()] + grid_offset_min
+    )
+    dep_date = (
+        pd.to_datetime(dep["date"]) + pd.to_timedelta(dep_abs // 1440, unit="D")
+    ).dt.date.astype(str)
     deps = pd.DataFrame(
-        {"airport": dep["origin"].to_numpy(), "date": dep["date"].to_numpy(),
-         "bin": dep_t // b}
+        {"airport": dep["origin"].to_numpy(), "date": dep_date.to_numpy(),
+         "bin": (dep_abs % 1440) // b}
     )
 
     arr = flights[flights["dest"].isin(airports)]
@@ -55,6 +65,7 @@ def loads_table(flights: pd.DataFrame, shift, airports) -> pd.DataFrame:
         arr["arr_day_offset"].to_numpy() * 1440
         + arr["arr_min"].to_numpy()
         + shift[arr.index.to_numpy()]
+        + grid_offset_min
     )
     arr_date = (
         pd.to_datetime(arr["date"]) + pd.to_timedelta(arr_abs // 1440, unit="D")
@@ -135,6 +146,62 @@ def overall(per_airport: dict) -> dict:
     }
 
 
+def shoulder_growth(base: pd.DataFrame, after: pd.DataFrame, airports) -> dict:
+    """Percent load change in the shoulder periods, per airport."""
+    out = {}
+    for name, lo, hi in [("early_0500_0659", 20, 27), ("late_2200_2359", 88, 95)]:
+        b = base[base["bin"].between(lo, hi)].groupby("airport")["load"].sum()
+        a = after[after["bin"].between(lo, hi)].groupby("airport")["load"].sum()
+        out[name] = {
+            apt: round(float((a.get(apt, 0) - b.get(apt, 0)) / b.get(apt, 1) * 100), 1)
+            for apt in airports
+        }
+    return out
+
+
+def dow_envelope_check(base: pd.DataFrame, flights: pd.DataFrame, shift,
+                       airports) -> dict:
+    """The optimizer's envelope uses a monthly mean; this check asks how
+    often shifted flights land in a slot that airport did not use on that
+    DAY OF WEEK (a Sunday-quiet bin can be open on the monthly average)."""
+    b = config.BIN_MINUTES
+    base = base.copy()
+    base["dow"] = pd.to_datetime(base["date"]).dt.dayofweek
+    nd = base.groupby("dow")["date"].nunique()
+    tot = base.groupby(["airport", "dow", "bin"])["load"].sum()
+    open_keys = {
+        (a, int(dw), int(bb))
+        for (a, dw, bb), v in tot.items()
+        if v / nd[dw] >= config.OPEN_BIN_MIN_MEAN
+    }
+    moved = flights[shift != 0]
+    eps = viol = 0
+    dep = moved[moved["origin"].isin(airports)]
+    dw = pd.to_datetime(dep["date"]).dt.dayofweek.to_numpy()
+    bb = (dep["dep_min"].to_numpy() + shift[dep.index.to_numpy()]) // b
+    for a, d, k in zip(dep["origin"], dw, bb):
+        eps += 1
+        viol += (a, int(d), int(k)) not in open_keys
+    arr = moved[moved["dest"].isin(airports)]
+    arr_abs = (
+        arr["arr_day_offset"].to_numpy() * 1440
+        + arr["arr_min"].to_numpy()
+        + shift[arr.index.to_numpy()]
+    )
+    dwa = (
+        pd.to_datetime(arr["date"]) + pd.to_timedelta(arr_abs // 1440, unit="D")
+    ).dt.dayofweek.to_numpy()
+    bba = (arr_abs % 1440) // b
+    for a, d, k in zip(arr["dest"], dwa, bba):
+        eps += 1
+        viol += (a, int(d), int(k)) not in open_keys
+    return {
+        "shifted_endpoints": int(eps),
+        "in_weekday_closed_bins": int(viol),
+        "pct": round(100.0 * viol / eps, 3) if eps else 0.0,
+    }
+
+
 def worst_day(base: pd.DataFrame, after: pd.DataFrame) -> dict:
     """The single airport-day with the highest baseline 15-min bin load,
     before vs after re-timing - the case where smoothing matters most."""
@@ -187,6 +254,7 @@ def run_all() -> dict:
             headline = {"per_airport": per_airport, "overall": agg,
                         "stats": stats}
             headline_after = after
+            headline_shift = shift
             flights.assign(shift_min=shift).to_csv(
                 config.DATA_DERIVED / f"shifts_w{w}.csv.gz",
                 index=False, compression="gzip",
@@ -194,6 +262,27 @@ def run_all() -> dict:
             after.to_csv(config.DATA_DERIVED / "optimized_bins.csv", index=False)
 
     case_study = worst_day(base, headline_after)
+
+    print("\nTiming-robustness checks (headline window)...")
+    zero = np.zeros(len(flights), dtype=int)
+    off = config.GRID_OFFSET_MIN
+    off_overall = overall(airport_metrics(
+        loads_table(flights, zero, airports, grid_offset_min=off),
+        loads_table(flights, headline_shift, airports, grid_offset_min=off),
+        airports,
+    ))
+    robustness = {
+        "grid_offset_min": off,
+        "peak_bin_reduction_pct_offset_grid": off_overall["peak_bin_reduction_pct"],
+        "peak_hour_reduction_pct_offset_grid": off_overall["peak_hour_reduction_pct"],
+        "bin_growth_cap": config.BIN_GROWTH_CAP,
+        "shoulder_growth_pct": shoulder_growth(base, headline_after, airports),
+        "weekday_envelope": dow_envelope_check(
+            base, flights, headline_shift, airports
+        ),
+    }
+    print(f"  offset-grid peak bin: -{robustness['peak_bin_reduction_pct_offset_grid']}%"
+          f" | weekday-closed endpoints: {robustness['weekday_envelope']['pct']}%")
 
     summary = {
         "study": "Flight schedule smoothing - simulation on historical BTS data",
@@ -215,10 +304,12 @@ def run_all() -> dict:
             "min_turnaround_min": config.MIN_TURNAROUND_MIN,
             "capacity_percentile": config.CAPACITY_PERCENTILE,
             "open_bin_min_mean": config.OPEN_BIN_MIN_MEAN,
+            "bin_growth_cap": config.BIN_GROWTH_CAP,
         },
         "headline": headline,
         "sensitivity": sensitivity,
         "worst_day_case_study": case_study,
+        "timing_robustness": robustness,
     }
     config.RESULTS.mkdir(parents=True, exist_ok=True)
     (config.RESULTS / "summary.json").write_text(json.dumps(summary, indent=2))

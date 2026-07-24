@@ -60,3 +60,14 @@ CAPACITY_PERCENTILE = 95
 # all 24/7; this keeps re-timing inside each airport's observed
 # operating hours (an empirical envelope, not published curfew data).
 OPEN_BIN_MIN_MEAN = 1.0
+
+# Shoulder protection: a bin may not grow beyond this multiple of its
+# baseline mean load for that time of day (or beyond its own same-day
+# baseline load, if that was already higher). Prevents peak drainage from
+# ballooning the early-morning / late-evening shoulders, where crew report
+# times and passenger tolerance make extra flights operationally costly.
+BIN_GROWTH_CAP = 1.5
+
+# Robustness: re-measure headline metrics on a grid offset by ~half a bin
+# to size the binning artifact (15-min bins, so 8 minutes).
+GRID_OFFSET_MIN = 8

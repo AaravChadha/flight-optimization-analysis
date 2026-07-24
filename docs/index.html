@@ -119,19 +119,21 @@
   15-minute bin the airport actually used at baseline (mean ≥
   1 movement/day in that bin), so re-timing stays inside each
   airport's observed operating hours and night-quiet airports gain no night
-  flights. As an empirical stand-in for unpublished runway capacity, the
+  flights; and no bin may grow beyond 1.5× its baseline average
+  for that time of day, so drained peaks cannot balloon the early-morning
+  or late-evening shoulders. As an empirical stand-in for unpublished runway capacity, the
   95th percentile of observed rolling-hour movements serves as each
   airport's practical ceiling — an <em>assumption</em>, examined in the
   limitations.</p>
 
   <h2>Results (simulated)</h2>
   <div class="kpis">
-    <div class="kpi"><div class="v">−38.29%</div>
+    <div class="kpi"><div class="v">−29.0%</div>
       <div class="l">peak 15-min bin load, mean daily peak across the five
       airports, at ±30 min (simulated)</div></div>
-    <div class="kpi"><div class="v">−13.57%</div>
+    <div class="kpi"><div class="v">−6.44%</div>
       <div class="l">peak rolling-hour load, same basis (simulated)</div></div>
-    <div class="kpi"><div class="v">106.1</div>
+    <div class="kpi"><div class="v">50.3</div>
       <div class="l">movements/day of headroom freed in the formerly busiest
       hours, summed over the five airports (simulated)</div></div>
   </div>
@@ -148,11 +150,11 @@
   <table>
 <thead><tr><th>Airport</th><th>Peak 15-min (before → after)</th><th>Δ</th><th>Peak hour (before → after)</th><th>Δ</th><th>Slots freed / day</th><th>p95 hourly proxy</th></tr></thead>
 <tbody>
-<tr><td>ORD</td><td>60 → 39.2</td><td>−34.66%</td><td>173.2 → 154</td><td>−11.08%</td><td>19.2</td><td>158</td></tr>
-<tr><td>ATL</td><td>59.3 → 39</td><td>−34.13%</td><td>171.7 → 153.7</td><td>−10.46%</td><td>18</td><td>150</td></tr>
-<tr><td>DEN</td><td>66.4 → 38.7</td><td>−41.66%</td><td>181 → 151.8</td><td>−16.13%</td><td>29.2</td><td>154</td></tr>
-<tr><td>DFW</td><td>59.6 → 33</td><td>−44.7%</td><td>158.8 → 129.1</td><td>−18.69%</td><td>29.7</td><td>143</td></tr>
-<tr><td>CLT</td><td>33.5 → 22.1</td><td>−34.1%</td><td>97 → 87</td><td>−10.37%</td><td>10.1</td><td>93</td></tr>
+<tr><td>ORD</td><td>60 → 41.3</td><td>−31.27%</td><td>173.2 → 160.6</td><td>−7.28%</td><td>12.6</td><td>158</td></tr>
+<tr><td>ATL</td><td>59.3 → 42</td><td>−29.18%</td><td>171.7 → 159.7</td><td>−6.97%</td><td>12</td><td>150</td></tr>
+<tr><td>DEN</td><td>66.4 → 41.1</td><td>−38.11%</td><td>181 → 160.5</td><td>−11.35%</td><td>20.5</td><td>154</td></tr>
+<tr><td>DFW</td><td>59.6 → 47.9</td><td>−19.64%</td><td>158.8 → 157.3</td><td>−0.98%</td><td>1.5</td><td>143</td></tr>
+<tr><td>CLT</td><td>33.5 → 25.7</td><td>−23.22%</td><td>97 → 93.4</td><td>−3.76%</td><td>3.6</td><td>93</td></tr>
 </tbody>
 </table>
   </div>
@@ -176,10 +178,10 @@
   <table>
 <thead><tr><th>Window</th><th>Flights shifted</th><th>Peak 15-min bin</th><th>Peak hour</th><th>Slots freed / day (total)</th></tr></thead>
 <tbody>
-<tr><td>±15 min</td><td>7,802</td><td>−25.98%</td><td>−2.8%</td><td>21.9</td></tr>
-<tr><td>±30 min</td><td>20,918</td><td>−38.29%</td><td>−13.57%</td><td>106.1</td></tr>
-<tr><td>±45 min</td><td>30,413</td><td>−44.22%</td><td>−21.52%</td><td>168.3</td></tr>
-<tr><td>±60 min</td><td>33,004</td><td>−45.55%</td><td>−23.24%</td><td>181.7</td></tr>
+<tr><td>±15 min</td><td>3,595</td><td>−16.99%</td><td>−0.63%</td><td>4.9</td></tr>
+<tr><td>±30 min</td><td>10,451</td><td>−29.0%</td><td>−6.44%</td><td>50.3</td></tr>
+<tr><td>±45 min</td><td>15,764</td><td>−35.32%</td><td>−11.27%</td><td>88.1</td></tr>
+<tr><td>±60 min</td><td>18,866</td><td>−37.84%</td><td>−13.67%</td><td>106.9</td></tr>
 </tbody>
 </table>
   </div>
@@ -198,11 +200,11 @@
   <table>
 <thead><tr><th>Airport</th><th>±15 min</th><th>±30 min</th><th>±45 min</th><th>±60 min</th></tr></thead>
 <tbody>
-<tr><td>ORD</td><td>−22.41% / 2</td><td>−34.66% / 19.2</td><td>−41.27% / 33.9</td><td>−42.56% / 37.2</td></tr>
-<tr><td>ATL</td><td>−28.36% / 5.7</td><td>−34.13% / 18</td><td>−37.94% / 27</td><td>−41.1% / 33</td></tr>
-<tr><td>DEN</td><td>−21.78% / 0.5</td><td>−41.66% / 29.2</td><td>−52.26% / 55.4</td><td>−52.5% / 56.3</td></tr>
-<tr><td>DFW</td><td>−37.18% / 13.2</td><td>−44.7% / 29.7</td><td>−49.68% / 40.4</td><td>−51.08% / 43.4</td></tr>
-<tr><td>CLT</td><td>−16.57% / 0.5</td><td>−34.1% / 10.1</td><td>−34.97% / 11.5</td><td>−35.16% / 11.8</td></tr>
+<tr><td>ORD</td><td>−18.59% / 1.4</td><td>−31.27% / 12.6</td><td>−33.32% / 17.3</td><td>−34.55% / 18.1</td></tr>
+<tr><td>ATL</td><td>−17.31% / 2.8</td><td>−29.18% / 12</td><td>−35.44% / 21.5</td><td>−38.32% / 27.7</td></tr>
+<tr><td>DEN</td><td>−21.73% / 0.4</td><td>−38.11% / 20.5</td><td>−44.92% / 36.7</td><td>−46.82% / 42.3</td></tr>
+<tr><td>DFW</td><td>−10.71% / 0.2</td><td>−19.64% / 1.5</td><td>−31.87% / 7.2</td><td>−37.07% / 13.2</td></tr>
+<tr><td>CLT</td><td>−15.32% / 0.2</td><td>−23.22% / 3.6</td><td>−25.82% / 5.5</td><td>−26.49% / 5.5</td></tr>
 </tbody>
 </table>
 <p class="footnote">Cells: peak 15-min bin reduction / peak-hour slots freed per day.</p>
@@ -212,9 +214,9 @@
   <p>The single busiest 15-minute bin of the month was at
   <strong>ATL on 2025-07-07</strong>: 77 scheduled
   movements in the 21:45 bin. Under the simulated ±30-minute
-  re-timing that bin's day flattens to a maximum of 42
+  re-timing that bin's day flattens to a maximum of 51
   movements per bin, and the day's peak hour drops from 183
-  to 166 movements. Even the most extreme day in the study
+  to 181 movements. Even the most extreme day in the study
   stays within its airport's observed operating hours.</p>
   <figure>
     <img src="figures/worst_day.png"
@@ -222,6 +224,25 @@
     <figcaption>The most congested airport-day of July 2025,
     before and after simulated re-timing.</figcaption>
   </figure>
+
+  <h2>Robustness checks</h2>
+  <ul>
+    <li><strong>Binning artifact, sized.</strong> Shifts land on the same
+      15-minute grid the metric is measured on, which can flatter the
+      bin-level number. Re-measured on a grid offset by 8
+      minutes (~half a bin), the peak 15-min reduction is
+      <strong>9.65%</strong> vs 29.0% on the
+      optimizer's own grid, and the peak-hour reduction is
+      5.28% vs 6.44%. The gap between each pair is
+      the size of the grid artifact.</li>
+    <li><strong>Shoulder growth under the cap.</strong> Load change in the
+      05:00–06:59 shoulder by airport: ORD +12.1%, ATL +0.0%, DEN -0.4%, DFW +11.6%, CLT +0.8%; in 22:00–23:59:
+      ORD +0.0%, ATL +4.0%, DEN +0.0%, DFW +0.6%, CLT +1.6%.</li>
+    <li><strong>Weekday envelope.</strong> The operating envelope uses a
+      monthly mean, so a slot could be open on average yet unused on, say,
+      Sundays. Checked per day-of-week: 0.027% of shifted flight
+      endpoints land in a slot that airport did not use on that weekday.</li>
+  </ul>
 
   <h2>Limitations — read these before quoting any number</h2>
   <ul>
@@ -234,8 +255,15 @@
       infeasible for a crew, a gate, or a connecting bank — and hub banks
       exist for commercial reasons this study does not price.</li>
     <li><strong>Turnaround feasibility is tail-number-only</strong>, with a
-      single global 30-minute minimum; real minimum turns vary by aircraft
-      type, carrier, and station.</li>
+      single global 30-minute minimum. BTS carries no aircraft type, so a
+      widebody's generous scheduled turn can legally be compressed toward
+      that flat floor even though its real minimum turn is far longer.</li>
+    <li><strong>Timing couplings beyond the aircraft are not modeled.</strong>
+      Opposite shifts of two flights can erase a passenger connection that
+      the schedule's banks were built to protect, and crew report/rest
+      windows are untouched. Block times are held fixed even though taxi
+      times vary by time of day. (July has no DST transition; re-running on
+      March or November would need explicit 23/25-hour-day handling.)</li>
     <li><strong>The operating-hours envelope is inferred from the schedule
       itself</strong> (bins with ≥ 1 movement/day at baseline),
       not from published curfews or staffing data. It prevents moves into
