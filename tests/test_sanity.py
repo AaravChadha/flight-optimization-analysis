@@ -76,6 +76,29 @@ def test_daily_departure_counts_conserved():
     assert before.equals(after), "per-day departure counts changed"
 
 
+def test_no_flight_moved_into_closed_bin():
+    """Airports are not 24/7: every shifted flight must land in a
+    bin-of-day the airport actually used at baseline (operating envelope)."""
+    sel, flights, shifted = _load()
+    base = pd.read_csv(config.DATA_DERIVED / "baseline_bins.csv")
+    n_days = shifted["date"].nunique()
+    b = config.BIN_MINUTES
+    open_bins = {}
+    for a in sel["airports"]:
+        tot = base[base["airport"] == a].groupby("bin")["load"].sum()
+        open_bins[a] = set(tot[tot / n_days >= config.OPEN_BIN_MIN_MEAN].index)
+
+    moved = shifted[shifted["shift_min"] != 0]
+    dep = moved[moved["origin"].isin(sel["airports"])]
+    dep_bins = (dep["dep_min"] + dep["shift_min"]) // b
+    for a, grp in dep_bins.groupby(dep["origin"]):
+        assert set(grp) <= open_bins[a], f"departure moved into closed bin at {a}"
+    arr = moved[moved["dest"].isin(sel["airports"])]
+    arr_bins = ((arr["arr_min"] + arr["shift_min"]) % 1440) // b
+    for a, grp in arr_bins.groupby(arr["dest"]):
+        assert set(grp) <= open_bins[a], f"arrival moved into closed bin at {a}"
+
+
 def test_no_airport_day_peak_increased():
     sel, _, _ = _load()
     base = pd.read_csv(config.DATA_DERIVED / "baseline_bins.csv")

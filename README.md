@@ -13,15 +13,16 @@ claims** of any kind. See [Limitations](#limitations).
 Results site: `docs/index.html` (GitHub Pages).
 All numbers: [`results/summary.json`](results/summary.json).
 
+<!-- RESULTS-START -->
 ## Results (July 2025, ±30-min window — simulated)
 
 Airports: **ORD, ATL, DEN, DFW, CLT** — the 5 busiest
 in the US by 2025 scheduled movements; July was the busiest month at
 those airports (279,750 scheduled movements).
 
-- **Peak 15-min bin load: −38.43%** (mean daily peak, summed across airports)
-- **Peak rolling-hour load: −13.75%**
-- **Slots freed: 107.5 movements/day** of new headroom in the formerly busiest hours (sum over the five airports)
+- **Peak 15-min bin load: −38.29%** (mean daily peak, summed across airports)
+- **Peak rolling-hour load: −13.57%**
+- **Slots freed: 106.1 movements/day** of new headroom in the formerly busiest hours (sum over the five airports)
 
 | Airport | Peak 15-min (before → after) | Δ | Peak hour (before → after) | Δ | Slots freed / day | p95 hourly proxy |
 |---|---|---|---|---|---|---|
@@ -29,7 +30,7 @@ those airports (279,750 scheduled movements).
 | ATL | 59.3 → 39 | −34.13% | 171.7 → 153.7 | −10.46% | 18 | 150 |
 | DEN | 66.4 → 38.7 | −41.66% | 181 → 151.8 | −16.13% | 29.2 | 154 |
 | DFW | 59.6 → 33 | −44.7% | 158.8 → 129.1 | −18.69% | 29.7 | 143 |
-| CLT | 33.5 → 21.7 | −35.26% | 97 → 85.5 | −11.84% | 11.5 | 93 |
+| CLT | 33.5 → 22.1 | −34.1% | 97 → 87 | −10.37% | 10.1 | 93 |
 
 Peak loads are means of daily maxima. All values are simulated re-timings of
 historical schedules — see Limitations.
@@ -38,14 +39,36 @@ historical schedules — see Limitations.
 
 | Window | Flights shifted | Peak 15-min bin | Peak hour | Slots freed / day (total) |
 |---|---|---|---|---|
-| ±15 min | 7,846 | −26.0% | −2.81% | 21.9 |
-| ±30 min | 21,262 | −38.43% | −13.75% | 107.5 |
-| ±45 min | 30,664 | −44.32% | −21.61% | 168.9 |
-| ±60 min | 33,270 | −45.65% | −23.36% | 182.7 |
+| ±15 min | 7,802 | −25.98% | −2.8% | 21.9 |
+| ±30 min | 20,918 | −38.29% | −13.57% | 106.1 |
+| ±45 min | 30,413 | −44.22% | −21.52% | 168.3 |
+| ±60 min | 33,004 | −45.55% | −23.24% | 181.7 |
+
+Per airport (cells: peak 15-min bin reduction / peak-hour slots freed per day.)
+
+| Airport | ±15 min | ±30 min | ±45 min | ±60 min |
+|---|---|---|---|---|
+| ORD | −22.41% / 2 | −34.66% / 19.2 | −41.27% / 33.9 | −42.56% / 37.2 |
+| ATL | −28.36% / 5.7 | −34.13% / 18 | −37.94% / 27 | −41.1% / 33 |
+| DEN | −21.78% / 0.5 | −41.66% / 29.2 | −52.26% / 55.4 | −52.5% / 56.3 |
+| DFW | −37.18% / 13.2 | −44.7% / 29.7 | −49.68% / 40.4 | −51.08% / 43.4 |
+| CLT | −16.57% / 0.5 | −34.1% / 10.1 | −34.97% / 11.5 | −35.16% / 11.8 |
+
+### Worst day in the data
+
+The busiest 15-min bin of the month: **ATL, 2025-07-07**,
+77 scheduled movements at 21:45.
+Re-timed, that day's max bin falls to 42 and its peak
+hour from 183 to 166 movements
+— while staying inside the airport's observed operating hours (movements are
+only placed into 15-min bins with ≥ 1
+movement/day at baseline; airports are not all 24/7).
 
 ![Before/after demand curves](results/figures/demand_curves.png)
 ![Sensitivity](results/figures/sensitivity.png)
-
+![Per-airport sensitivity](results/figures/sensitivity_by_airport.png)
+![Worst day](results/figures/worst_day.png)
+<!-- RESULTS-END -->
 
 ## Data
 
@@ -103,6 +126,12 @@ historical schedules — see Limitations.
 5. **Departures never cross midnight**, so each flight keeps its service date
    (this keeps daily comparisons well-defined; arrivals may roll past
    midnight, e.g. 23:50 shifted +15).
+6. **Operating envelope.** Airports are not all 24/7 — overnight hours are
+   quiet or closed for staffing, curfew, and demand reasons. A move may only
+   target a 15-minute bin-of-day the airport actually used at baseline
+   (mean ≥ `OPEN_BIN_MIN_MEAN` = 1 movement/day in that bin), so smoothing
+   stays inside each airport's observed operating hours and night-quiet
+   airports gain no night flights.
 
 ### Metric definitions (exact arithmetic)
 
@@ -168,6 +197,10 @@ Genuinely load-bearing caveats, not fine print:
 - **Turnaround feasibility is tail-number-only** and uses a single global
   30-minute minimum; real minimum turn times vary by aircraft type, carrier,
   and airport.
+- **The operating-hours envelope is inferred from the schedule itself**
+  (bins with at least 1 movement/day at baseline), not from published
+  curfews or staffing data. It prevents moves into hours an airport didn't
+  use, but says nothing about *why* those hours were quiet.
 - **The greedy heuristic has no optimality guarantee.** Reported reductions
   are a lower bound on what an exact optimizer could achieve *within this
   model*, not an operational plan.

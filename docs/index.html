@@ -115,19 +115,23 @@
   ground time of at least min(original&nbsp;turn,&nbsp;30&nbsp;min) — checked
   across <em>all</em> airports, not just the five studied — and departures
   never cross midnight. Flights whose feasibility can't be verified are
-  never moved. As an empirical stand-in for unpublished runway capacity, the
+  never moved. Airports are not all 24/7: a move may only target a
+  15-minute bin the airport actually used at baseline (mean ≥
+  1 movement/day in that bin), so re-timing stays inside each
+  airport's observed operating hours and night-quiet airports gain no night
+  flights. As an empirical stand-in for unpublished runway capacity, the
   95th percentile of observed rolling-hour movements serves as each
   airport's practical ceiling — an <em>assumption</em>, examined in the
   limitations.</p>
 
   <h2>Results (simulated)</h2>
   <div class="kpis">
-    <div class="kpi"><div class="v">−38.43%</div>
+    <div class="kpi"><div class="v">−38.29%</div>
       <div class="l">peak 15-min bin load, mean daily peak across the five
       airports, at ±30 min (simulated)</div></div>
-    <div class="kpi"><div class="v">−13.75%</div>
+    <div class="kpi"><div class="v">−13.57%</div>
       <div class="l">peak rolling-hour load, same basis (simulated)</div></div>
-    <div class="kpi"><div class="v">107.5</div>
+    <div class="kpi"><div class="v">106.1</div>
       <div class="l">movements/day of headroom freed in the formerly busiest
       hours, summed over the five airports (simulated)</div></div>
   </div>
@@ -148,7 +152,7 @@
 <tr><td>ATL</td><td>59.3 → 39</td><td>−34.13%</td><td>171.7 → 153.7</td><td>−10.46%</td><td>18</td><td>150</td></tr>
 <tr><td>DEN</td><td>66.4 → 38.7</td><td>−41.66%</td><td>181 → 151.8</td><td>−16.13%</td><td>29.2</td><td>154</td></tr>
 <tr><td>DFW</td><td>59.6 → 33</td><td>−44.7%</td><td>158.8 → 129.1</td><td>−18.69%</td><td>29.7</td><td>143</td></tr>
-<tr><td>CLT</td><td>33.5 → 21.7</td><td>−35.26%</td><td>97 → 85.5</td><td>−11.84%</td><td>11.5</td><td>93</td></tr>
+<tr><td>CLT</td><td>33.5 → 22.1</td><td>−34.1%</td><td>97 → 87</td><td>−10.37%</td><td>10.1</td><td>93</td></tr>
 </tbody>
 </table>
   </div>
@@ -172,13 +176,52 @@
   <table>
 <thead><tr><th>Window</th><th>Flights shifted</th><th>Peak 15-min bin</th><th>Peak hour</th><th>Slots freed / day (total)</th></tr></thead>
 <tbody>
-<tr><td>±15 min</td><td>7,846</td><td>−26.0%</td><td>−2.81%</td><td>21.9</td></tr>
-<tr><td>±30 min</td><td>21,262</td><td>−38.43%</td><td>−13.75%</td><td>107.5</td></tr>
-<tr><td>±45 min</td><td>30,664</td><td>−44.32%</td><td>−21.61%</td><td>168.9</td></tr>
-<tr><td>±60 min</td><td>33,270</td><td>−45.65%</td><td>−23.36%</td><td>182.7</td></tr>
+<tr><td>±15 min</td><td>7,802</td><td>−25.98%</td><td>−2.8%</td><td>21.9</td></tr>
+<tr><td>±30 min</td><td>20,918</td><td>−38.29%</td><td>−13.57%</td><td>106.1</td></tr>
+<tr><td>±45 min</td><td>30,413</td><td>−44.22%</td><td>−21.52%</td><td>168.3</td></tr>
+<tr><td>±60 min</td><td>33,004</td><td>−45.55%</td><td>−23.24%</td><td>181.7</td></tr>
 </tbody>
 </table>
   </div>
+
+  <h2>How each airport responds</h2>
+  <p>The same sensitivity, broken out per airport. Airports whose schedules
+  are built from sharp connection banks (DFW, DEN) give up more of their
+  peak than airports whose demand is already spread (ATL, ORD) — the
+  spikier the baseline, the more a small window buys.</p>
+  <figure>
+    <img src="figures/sensitivity_by_airport.png"
+         alt="Two panels of five lines each, one per airport, showing peak 15-minute bin reduction percentage and peak-hour slots freed per day as the shift window grows from 15 to 60 minutes.">
+    <figcaption>Per-airport sensitivity to the shift window (simulated).</figcaption>
+  </figure>
+  <div class="tablewrap">
+  <table>
+<thead><tr><th>Airport</th><th>±15 min</th><th>±30 min</th><th>±45 min</th><th>±60 min</th></tr></thead>
+<tbody>
+<tr><td>ORD</td><td>−22.41% / 2</td><td>−34.66% / 19.2</td><td>−41.27% / 33.9</td><td>−42.56% / 37.2</td></tr>
+<tr><td>ATL</td><td>−28.36% / 5.7</td><td>−34.13% / 18</td><td>−37.94% / 27</td><td>−41.1% / 33</td></tr>
+<tr><td>DEN</td><td>−21.78% / 0.5</td><td>−41.66% / 29.2</td><td>−52.26% / 55.4</td><td>−52.5% / 56.3</td></tr>
+<tr><td>DFW</td><td>−37.18% / 13.2</td><td>−44.7% / 29.7</td><td>−49.68% / 40.4</td><td>−51.08% / 43.4</td></tr>
+<tr><td>CLT</td><td>−16.57% / 0.5</td><td>−34.1% / 10.1</td><td>−34.97% / 11.5</td><td>−35.16% / 11.8</td></tr>
+</tbody>
+</table>
+<p class="footnote">Cells: peak 15-min bin reduction / peak-hour slots freed per day.</p>
+  </div>
+
+  <h2>The worst day in the data</h2>
+  <p>The single busiest 15-minute bin of the month was at
+  <strong>ATL on 2025-07-07</strong>: 77 scheduled
+  movements in the 21:45 bin. Under the simulated ±30-minute
+  re-timing that bin's day flattens to a maximum of 42
+  movements per bin, and the day's peak hour drops from 183
+  to 166 movements. Even the most extreme day in the study
+  stays within its airport's observed operating hours.</p>
+  <figure>
+    <img src="figures/worst_day.png"
+         alt="Single-day demand curve for the worst baseline day, baseline in gray versus simulated re-timed schedule in blue, with the peak bin annotated.">
+    <figcaption>The most congested airport-day of July 2025,
+    before and after simulated re-timing.</figcaption>
+  </figure>
 
   <h2>Limitations — read these before quoting any number</h2>
   <ul>
@@ -193,6 +236,11 @@
     <li><strong>Turnaround feasibility is tail-number-only</strong>, with a
       single global 30-minute minimum; real minimum turns vary by aircraft
       type, carrier, and station.</li>
+    <li><strong>The operating-hours envelope is inferred from the schedule
+      itself</strong> (bins with ≥ 1 movement/day at baseline),
+      not from published curfews or staffing data. It prevents moves into
+      hours an airport didn't use, but says nothing about <em>why</em> those
+      hours were quiet.</li>
     <li><strong>Greedy heuristic, no optimality guarantee</strong> — results
       are a floor for this model, not an operational plan.</li>
     <li><strong>Hourly peaks compress much less than 15-minute peaks.</strong>

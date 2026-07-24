@@ -20,6 +20,11 @@ Constraints
                cannot squeeze a turnaround at an unselected airport.
 * no tail number -> never shifted (feasibility cannot be verified);
   overlapping legs of a tail (data glitch) -> both legs frozen.
+* operating envelope: airports are not all 24/7. A move may only target a
+  15-minute bin-of-day the airport used at baseline (mean load >=
+  OPEN_BIN_MIN_MEAN movements/day), so smoothing stays inside each
+  airport's observed operating hours - night-quiet airports gain no
+  night flights.
 
 Objective (greedy)
 ------------------
@@ -118,6 +123,23 @@ def optimize(flights: pd.DataFrame, airports, window: int,
                 loads[key] += 1
                 members[key].add((f, kind))
 
+    # Operating envelope: airports are not all 24/7. A bin-of-day is "open"
+    # at an airport only if the baseline schedule used it on an average day
+    # (mean load >= OPEN_BIN_MIN_MEAN). Moves may only target open bins, so
+    # re-timing never pushes flights into hours the airport didn't operate.
+    n_days = len(set(flights["date"]))
+    bin_of_day_total = defaultdict(int)
+    for (apt, _d, bb), v in loads.items():
+        bin_of_day_total[(apt, bb)] += v
+    open_bins = {
+        a: {
+            bb
+            for bb in range(96)
+            if bin_of_day_total[(a, bb)] / n_days >= config.OPEN_BIN_MIN_MEAN
+        }
+        for a in airports
+    }
+
     deltas = [s for s in range(-window, window + 1, step)]
 
     def feasible(f: int, s: int) -> bool:
@@ -184,6 +206,9 @@ def optimize(flights: pd.DataFrame, airports, window: int,
                     new = endpoint_key(f, k2, s_new)
                     if new == old:
                         continue
+                    if new[2] not in open_bins[new[0]]:
+                        ok = False
+                        break
                     gain = loads[new] + 1
                     a2, d2 = new[0], new[1]
                     cap = peak if (a2, d2) == (apt, day) else ad_max(a2, d2)

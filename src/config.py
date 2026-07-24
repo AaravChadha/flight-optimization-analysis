@@ -53,3 +53,10 @@ SENSITIVITY_WINDOWS = [15, 30, 45, 60]
 # Empirical capacity proxy: percentile of observed hourly movements.
 # This is an ASSUMPTION standing in for published runway capacity.
 CAPACITY_PERCENTILE = 95
+
+# Operating envelope: a flight may only be MOVED INTO a 15-minute
+# bin-of-day that the airport actually used at baseline - mean scheduled
+# movements per day in that bin >= this threshold. Airports are not
+# all 24/7; this keeps re-timing inside each airport's observed
+# operating hours (an empirical envelope, not published curfew data).
+OPEN_BIN_MIN_MEAN = 1.0

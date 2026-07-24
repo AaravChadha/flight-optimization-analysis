@@ -135,6 +135,25 @@ def overall(per_airport: dict) -> dict:
     }
 
 
+def worst_day(base: pd.DataFrame, after: pd.DataFrame) -> dict:
+    """The single airport-day with the highest baseline 15-min bin load,
+    before vs after re-timing - the case where smoothing matters most."""
+    pb, pa = _daily_profiles(base), _daily_profiles(after)
+    a, d = max(pb, key=lambda k: pb[k].max())
+    vb, va = pb[(a, d)], pa[(a, d)]
+    peak_bin = int(vb.argmax())
+    t = f"{peak_bin * config.BIN_MINUTES // 60:02d}:{peak_bin * config.BIN_MINUTES % 60:02d}"
+    return {
+        "airport": a,
+        "date": d,
+        "peak_bin_time_local": t,
+        "max_bin_before": int(vb.max()),
+        "max_bin_after": int(va.max()),
+        "max_hour_before": int(_hourly(vb).max()),
+        "max_hour_after": int(_hourly(va).max()),
+    }
+
+
 def run_all() -> dict:
     sel = prepare.load_selection()
     flights = prepare.load_flights()
@@ -150,7 +169,15 @@ def run_all() -> dict:
         per_airport = airport_metrics(base, after, airports)
         agg = overall(per_airport)
         sensitivity.append(
-            {"window_min": w, "n_shifted": stats["n_shifted"], **agg}
+            {"window_min": w, "n_shifted": stats["n_shifted"], **agg,
+             "per_airport": {
+                 a: {
+                     "peak_bin_reduction_pct": m["peak_bin_reduction_pct"],
+                     "peak_hour_reduction_pct": m["peak_hour_reduction_pct"],
+                     "slots_freed_per_day": m["slots_freed_per_day"],
+                 }
+                 for a, m in per_airport.items()
+             }}
         )
         print(f"  shifted {stats['n_shifted']:,} flights | "
               f"peak bin -{agg['peak_bin_reduction_pct']}% | "
@@ -159,11 +186,14 @@ def run_all() -> dict:
         if w == config.SHIFT_WINDOW_MIN:
             headline = {"per_airport": per_airport, "overall": agg,
                         "stats": stats}
+            headline_after = after
             flights.assign(shift_min=shift).to_csv(
                 config.DATA_DERIVED / f"shifts_w{w}.csv.gz",
                 index=False, compression="gzip",
             )
             after.to_csv(config.DATA_DERIVED / "optimized_bins.csv", index=False)
+
+    case_study = worst_day(base, headline_after)
 
     summary = {
         "study": "Flight schedule smoothing - simulation on historical BTS data",
@@ -184,9 +214,11 @@ def run_all() -> dict:
             "shift_step_min": config.SHIFT_STEP_MIN,
             "min_turnaround_min": config.MIN_TURNAROUND_MIN,
             "capacity_percentile": config.CAPACITY_PERCENTILE,
+            "open_bin_min_mean": config.OPEN_BIN_MIN_MEAN,
         },
         "headline": headline,
         "sensitivity": sensitivity,
+        "worst_day_case_study": case_study,
     }
     config.RESULTS.mkdir(parents=True, exist_ok=True)
     (config.RESULTS / "summary.json").write_text(json.dumps(summary, indent=2))

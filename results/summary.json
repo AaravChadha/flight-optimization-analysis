@@ -18,7 +18,8 @@
     "headline_window_min": 30,
     "shift_step_min": 15,
     "min_turnaround_min": 30,
-    "capacity_percentile": 95
+    "capacity_percentile": 95,
+    "open_bin_min_mean": 1.0
   },
   "headline": {
     "per_airport": {
@@ -80,60 +81,177 @@
       },
       "CLT": {
         "mean_daily_max_bin_before": 33.483870967741936,
-        "mean_daily_max_bin_after": 21.677419354838708,
-        "peak_bin_reduction_pct": 35.26,
+        "mean_daily_max_bin_after": 22.06451612903226,
+        "peak_bin_reduction_pct": 34.1,
         "abs_max_bin_before": 37,
         "abs_max_bin_after": 23,
         "mean_daily_max_hour_before": 97.03225806451613,
-        "mean_daily_max_hour_after": 85.54838709677419,
-        "peak_hour_reduction_pct": 11.84,
-        "slots_freed_per_day": 11.483870967741936,
+        "mean_daily_max_hour_after": 86.96774193548387,
+        "peak_hour_reduction_pct": 10.37,
+        "slots_freed_per_day": 10.064516129032258,
         "capacity_proxy_p95_hourly": 93.0,
         "hour_windows_at_or_above_proxy_before": 179,
         "hour_windows_at_or_above_proxy_after": 0
       }
     },
     "overall": {
-      "peak_bin_reduction_pct": 38.43,
-      "peak_hour_reduction_pct": 13.75,
-      "slots_freed_per_day_total": 107.52
+      "peak_bin_reduction_pct": 38.29,
+      "peak_hour_reduction_pct": 13.57,
+      "slots_freed_per_day_total": 106.1
     },
     "stats": {
       "n_flights": 678089,
       "min_turnaround_min": 30,
       "assertions": "all passed",
       "window": 30,
-      "n_shifted": 21262
+      "n_shifted": 20918
     }
   },
   "sensitivity": [
     {
       "window_min": 15,
-      "n_shifted": 7846,
-      "peak_bin_reduction_pct": 26.0,
-      "peak_hour_reduction_pct": 2.81,
-      "slots_freed_per_day_total": 21.94
+      "n_shifted": 7802,
+      "peak_bin_reduction_pct": 25.98,
+      "peak_hour_reduction_pct": 2.8,
+      "slots_freed_per_day_total": 21.9,
+      "per_airport": {
+        "ORD": {
+          "peak_bin_reduction_pct": 22.41,
+          "peak_hour_reduction_pct": 1.17,
+          "slots_freed_per_day": 2.032258064516129
+        },
+        "ATL": {
+          "peak_bin_reduction_pct": 28.36,
+          "peak_hour_reduction_pct": 3.34,
+          "slots_freed_per_day": 5.741935483870968
+        },
+        "DEN": {
+          "peak_bin_reduction_pct": 21.78,
+          "peak_hour_reduction_pct": 0.29,
+          "slots_freed_per_day": 0.5161290322580645
+        },
+        "DFW": {
+          "peak_bin_reduction_pct": 37.18,
+          "peak_hour_reduction_pct": 8.29,
+          "slots_freed_per_day": 13.161290322580646
+        },
+        "CLT": {
+          "peak_bin_reduction_pct": 16.57,
+          "peak_hour_reduction_pct": 0.47,
+          "slots_freed_per_day": 0.45161290322580644
+        }
+      }
     },
     {
       "window_min": 30,
-      "n_shifted": 21262,
-      "peak_bin_reduction_pct": 38.43,
-      "peak_hour_reduction_pct": 13.75,
-      "slots_freed_per_day_total": 107.52
+      "n_shifted": 20918,
+      "peak_bin_reduction_pct": 38.29,
+      "peak_hour_reduction_pct": 13.57,
+      "slots_freed_per_day_total": 106.1,
+      "per_airport": {
+        "ORD": {
+          "peak_bin_reduction_pct": 34.66,
+          "peak_hour_reduction_pct": 11.08,
+          "slots_freed_per_day": 19.193548387096776
+        },
+        "ATL": {
+          "peak_bin_reduction_pct": 34.13,
+          "peak_hour_reduction_pct": 10.46,
+          "slots_freed_per_day": 17.967741935483872
+        },
+        "DEN": {
+          "peak_bin_reduction_pct": 41.66,
+          "peak_hour_reduction_pct": 16.13,
+          "slots_freed_per_day": 29.193548387096776
+        },
+        "DFW": {
+          "peak_bin_reduction_pct": 44.7,
+          "peak_hour_reduction_pct": 18.69,
+          "slots_freed_per_day": 29.677419354838708
+        },
+        "CLT": {
+          "peak_bin_reduction_pct": 34.1,
+          "peak_hour_reduction_pct": 10.37,
+          "slots_freed_per_day": 10.064516129032258
+        }
+      }
     },
     {
       "window_min": 45,
-      "n_shifted": 30664,
-      "peak_bin_reduction_pct": 44.32,
-      "peak_hour_reduction_pct": 21.61,
-      "slots_freed_per_day_total": 168.9
+      "n_shifted": 30413,
+      "peak_bin_reduction_pct": 44.22,
+      "peak_hour_reduction_pct": 21.52,
+      "slots_freed_per_day_total": 168.26,
+      "per_airport": {
+        "ORD": {
+          "peak_bin_reduction_pct": 41.27,
+          "peak_hour_reduction_pct": 19.58,
+          "slots_freed_per_day": 33.903225806451616
+        },
+        "ATL": {
+          "peak_bin_reduction_pct": 37.94,
+          "peak_hour_reduction_pct": 15.72,
+          "slots_freed_per_day": 27.0
+        },
+        "DEN": {
+          "peak_bin_reduction_pct": 52.26,
+          "peak_hour_reduction_pct": 30.61,
+          "slots_freed_per_day": 55.41935483870968
+        },
+        "DFW": {
+          "peak_bin_reduction_pct": 49.68,
+          "peak_hour_reduction_pct": 25.45,
+          "slots_freed_per_day": 40.41935483870968
+        },
+        "CLT": {
+          "peak_bin_reduction_pct": 34.97,
+          "peak_hour_reduction_pct": 11.87,
+          "slots_freed_per_day": 11.516129032258064
+        }
+      }
     },
     {
       "window_min": 60,
-      "n_shifted": 33270,
-      "peak_bin_reduction_pct": 45.65,
-      "peak_hour_reduction_pct": 23.36,
-      "slots_freed_per_day_total": 182.65
+      "n_shifted": 33004,
+      "peak_bin_reduction_pct": 45.55,
+      "peak_hour_reduction_pct": 23.24,
+      "slots_freed_per_day_total": 181.71,
+      "per_airport": {
+        "ORD": {
+          "peak_bin_reduction_pct": 42.56,
+          "peak_hour_reduction_pct": 21.48,
+          "slots_freed_per_day": 37.193548387096776
+        },
+        "ATL": {
+          "peak_bin_reduction_pct": 41.1,
+          "peak_hour_reduction_pct": 19.24,
+          "slots_freed_per_day": 33.03225806451613
+        },
+        "DEN": {
+          "peak_bin_reduction_pct": 52.5,
+          "peak_hour_reduction_pct": 31.09,
+          "slots_freed_per_day": 56.29032258064516
+        },
+        "DFW": {
+          "peak_bin_reduction_pct": 51.08,
+          "peak_hour_reduction_pct": 27.3,
+          "slots_freed_per_day": 43.354838709677416
+        },
+        "CLT": {
+          "peak_bin_reduction_pct": 35.16,
+          "peak_hour_reduction_pct": 12.2,
+          "slots_freed_per_day": 11.838709677419354
+        }
+      }
     }
-  ]
+  ],
+  "worst_day_case_study": {
+    "airport": "ATL",
+    "date": "2025-07-07",
+    "peak_bin_time_local": "21:45",
+    "max_bin_before": 77,
+    "max_bin_after": 42,
+    "max_hour_before": 183,
+    "max_hour_after": 166
+  }
 }
