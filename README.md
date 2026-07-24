@@ -78,10 +78,10 @@ movement/day at baseline; airports are not all 24/7).
 - **Weekday envelope:** 0.027% of shifted flight
   endpoints land in a slot that airport did not use on that day of week.
 
-![Before/after demand curves](results/figures/demand_curves.png)
-![Sensitivity](results/figures/sensitivity.png)
-![Per-airport sensitivity](results/figures/sensitivity_by_airport.png)
-![Worst day](results/figures/worst_day.png)
+![Before/after demand curves](results/figures/demand_curves.svg)
+![Sensitivity](results/figures/sensitivity.svg)
+![Per-airport sensitivity](results/figures/sensitivity_by_airport.svg)
+![Worst day](results/figures/worst_day.svg)
 <!-- RESULTS-END -->
 
 ## Data
