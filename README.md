@@ -17,11 +17,12 @@ All numbers: [`results/summary.json`](results/summary.json).
 ## Results (July 2025, ±30-min window — simulated)
 
 Airports: **ORD, ATL, DEN, DFW, CLT** — the 5 busiest
-in the US by 2025 scheduled movements; July was the busiest month at
+in this dataset (US reporting marketing carriers; no cargo or general
+aviation) by 2025 scheduled movements; July was the busiest month at
 those airports (279,750 scheduled movements).
 
-- **Peak 15-min bin load: −29.0%** (mean daily peak, summed across airports)
-- **Peak rolling-hour load: −6.44%**
+- **Peak rolling-hour load: −6.44%** (per-airport mean daily peaks, summed over the five airports)
+- **Peak 15-min bin load: −29.0%** (same basis; measured on the optimizer's own grid — the robustness checks size the grid artifact)
 - **Slots freed: 50.3 movements/day** of new headroom in the formerly busiest hours (sum over the five airports)
 
 | Airport | Peak 15-min (before → after) | Δ | Peak hour (before → after) | Δ | Slots freed / day | p95 hourly proxy |

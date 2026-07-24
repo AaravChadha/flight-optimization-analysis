@@ -243,7 +243,9 @@
       Performance</a> — US government public-domain data. 2025, all 12
       months scanned for selection.</li>
     <li><strong>Airports:</strong> ORD, ATL, DEN, DFW, CLT — the 5 busiest in
-      the US by scheduled movements (departures + arrivals) in 2025.</li>
+      this dataset by scheduled movements (departures + arrivals) in 2025.
+      BTS on-time data covers US reporting marketing carriers only — no
+      cargo, general aviation, or non-reporting operators.</li>
     <li><strong>Period:</strong> July 2025 — the busiest single
       month at those airports by the same count (279,750 scheduled
       movements).</li>
@@ -252,36 +254,43 @@
       is fixed: nothing is added, removed, or cancelled.</li>
   </ul>
 
-  <h2>Method in one paragraph</h2>
+  <h2>Method</h2>
+  <p>In one sentence: shift each flight's schedule by at most a small,
+  fixed amount, only where the aircraft's rotation and the airport's
+  observed operating pattern allow it, and measure how much the peaks
+  come down.</p>
   <p>Scheduled movements are binned per airport per 15-minute bin per day
   (local time). Each flight may shift its whole schedule — departure and
   arrival together — in 15-minute steps within a window (headline
   ±30&nbsp;min). A greedy pass repeatedly moves the most-movable flight
   out of the fullest bin into the least-loaded reachable bin, accepting a
   move only if every bin that gains a flight stays strictly below its
-  airport-day's current peak — so peaks can only fall, never migrate.
-  Feasibility: consecutive legs flown by the same tail number must keep a
+  airport-day's current peak — so peaks can only fall, never migrate.</p>
+  <p>Feasibility: consecutive legs flown by the same tail number must keep a
   ground time of at least min(original&nbsp;turn,&nbsp;30&nbsp;min) — checked
   across <em>all</em> airports, not just the five studied — and departures
   never cross midnight. Flights whose feasibility can't be verified are
-  never moved. Airports are not all 24/7: a move may only target a
+  never moved.</p>
+  <p>Airports are not all 24/7: a move may only target a
   15-minute bin the airport actually used at baseline (mean ≥
   1 movement/day in that bin), so re-timing stays inside each
   airport's observed operating hours and night-quiet airports gain no night
   flights; and no bin may grow beyond 1.5× its baseline average
   for that time of day, so drained peaks cannot balloon the early-morning
-  or late-evening shoulders. As an empirical stand-in for unpublished runway capacity, the
+  or late-evening shoulders.</p>
+  <p>As an empirical stand-in for unpublished runway capacity, the
   95th percentile of observed rolling-hour movements serves as each
   airport's practical ceiling — an <em>assumption</em>, examined in the
   limitations.</p>
 
   <h2>Results (simulated)</h2>
   <div class="readout">
-    <div class="ro"><span class="v">−29.0%</span>
-      <span class="l">peak 15-min bin load, mean daily peak across the five
-      airports, at ±30 min (simulated)</span></div>
     <div class="ro"><span class="v">−6.44%</span>
-      <span class="l">peak rolling-hour load, same basis (simulated)</span></div>
+      <span class="l">peak rolling-hour load — per-airport mean daily peaks,
+      summed over the five airports — at ±30 min (simulated)</span></div>
+    <div class="ro"><span class="v">−29.0%</span>
+      <span class="l">peak 15-min bin load, same basis (simulated; measured
+      on the optimizer's own grid — see robustness checks)</span></div>
     <div class="ro"><span class="v">50.3</span>
       <span class="l">movements/day of headroom freed in the formerly busiest
       hours, summed over the five airports (simulated)</span></div>
@@ -349,10 +358,15 @@
   </div>
 
   <h2>How each airport responds</h2>
-  <p>The same sensitivity, broken out per airport. Airports whose schedules
-  are built from sharp connection banks (DFW, DEN) give up more of their
-  peak than airports whose demand is already spread (ATL, ORD) — the
-  spikier the baseline, the more a small window buys.</p>
+  <p>The same sensitivity, broken out per airport. DEN — the spikiest
+  baseline in the demand curves — gives up the most peak at every window.
+  DFW is the weakest responder through ±30 despite equally sharp banks:
+  its tallest spike sits at about 07:00, hard against the early-morning
+  shoulder where the 1.5× growth cap limits how much load can
+  land (the robustness checks show DFW's morning shoulder absorbing
+  +11.6% even so), so its gains arrive only at ±45 and wider. CLT is
+  close to saturated by ±30 — a smaller schedule runs out of feasible
+  moves early.</p>
   <figure>
     <img src="figures/sensitivity_by_airport.svg"
          alt="Two panels of five lines each, one per airport, showing peak 15-minute bin reduction percentage and peak-hour slots freed per day as the shift window grows from 15 to 60 minutes. Lines are labeled directly with airport codes.">
