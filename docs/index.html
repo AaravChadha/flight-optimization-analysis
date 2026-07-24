@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flight schedule smoothing — a simulation study on historical BTS data</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e;
+    --muted: #898781; --grid: #e1e0d9; --accent: #2a78d6;
+    --border: rgba(11,11,11,0.10);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 46rem; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+  h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 .4rem; }
+  h2 { font-size: 1.2rem; margin: 2.6rem 0 .6rem; }
+  p, li { color: var(--ink2); }
+  strong { color: var(--ink); }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; }
+  .banner {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 6px;
+    padding: .8rem 1rem; font-size: .95rem; margin: 1.5rem 0;
+  }
+  .kpis { display: flex; gap: .8rem; flex-wrap: wrap; margin: 1.4rem 0; }
+  .kpi {
+    flex: 1 1 12rem; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: .9rem 1rem;
+  }
+  .kpi .v { font-size: 1.9rem; font-weight: 650; color: var(--ink); }
+  .kpi .l { font-size: .84rem; color: var(--muted); line-height: 1.4; }
+  figure { margin: 1.4rem 0; }
+  figure img { max-width: 100%; border: 1px solid var(--border); border-radius: 8px; }
+  figcaption { font-size: .85rem; color: var(--muted); margin-top: .4rem; }
+  .tablewrap { overflow-x: auto; }
+  table {
+    border-collapse: collapse; font-size: .9rem; margin: 1rem 0; min-width: 34rem;
+  }
+  th, td {
+    text-align: right; padding: .45rem .7rem; border-bottom: 1px solid var(--grid);
+    font-variant-numeric: tabular-nums; color: var(--ink2);
+  }
+  th { color: var(--muted); font-weight: 600; }
+  th:first-child, td:first-child { text-align: left; color: var(--ink); }
+  code, pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .86em;
+  }
+  pre {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem; overflow-x: auto; line-height: 1.5;
+  }
+  a { color: var(--accent); }
+  .footnote { font-size: .85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Flight schedule smoothing</h1>
+  <p class="subtitle">A one-day simulation study on historical BTS schedule data
+  — how much peak-hour congestion could small departure-time shifts remove,
+  with zero flights cut?</p>
+
+  <div class="banner"><strong>What this is (and isn't).</strong> Every number
+  on this page is a <em>simulated re-timing of historical schedules</em> under
+  the assumptions stated below. Nothing here models real airspace, weather,
+  gates, crews, or passengers, and nothing here is an operational or safety
+  claim.</div>
+
+  <h2>Motivation</h2>
+  <p>Hub airports schedule flights in tight banks: waves of arrivals followed
+  by waves of departures, maximizing passenger connections but concentrating
+  demand into short spikes. Peak-period congestion at hub airports drives
+  delay propagation across the network and concentrates air traffic control
+  workload; the FAA manages demand at capacity-constrained airports through
+  slot administration (14&nbsp;CFR Part&nbsp;93) and Ground Delay Programs, and the
+  economic cost of US flight delay was estimated in the tens of billions of
+  dollars per year by the NEXTOR <em>Total Delay Impact Study</em> (Ball et
+  al., 2010). That context motivates the question — it is <strong>not</strong>
+  a finding of this study.</p>
+  <p>The question this study can answer with schedule data alone: if each
+  flight's departure could move by at most a small, fixed window, how much
+  flatter could the demand curve be — with the same flights, the same
+  aircraft rotations, and no cancellations?</p>
+
+  <h2>Data &amp; scope</h2>
+  <ul>
+    <li><strong>Source:</strong> Bureau of Transportation Statistics,
+      <a href="https://www.transtats.bts.gov/ots/">Marketing Carrier On-Time
+      Performance</a> — US government public-domain data. ⟦YEAR⟧, all 12
+      months scanned for selection.</li>
+    <li><strong>Airports:</strong> ⟦AIRPORTS⟧ — the ⟦N_AIRPORTS⟧ busiest in
+      the US by scheduled movements (departures + arrivals) in ⟦YEAR⟧.</li>
+    <li><strong>Period:</strong> ⟦MONTH_NAME⟧ ⟦YEAR⟧ — the busiest single
+      month at those airports by the same count (⟦MONTH_MOVES⟧ scheduled
+      movements).</li>
+    <li><strong>Scheduled times, not actuals</strong> — this re-times plans,
+      it does not model delays. Cancelled flights are dropped. Flight count
+      is fixed: nothing is added, removed, or cancelled.</li>
+  </ul>
+
+  <h2>Method in one paragraph</h2>
+  <p>Scheduled movements are binned per airport per 15-minute bin per day
+  (local time). Each flight may shift its whole schedule — departure and
+  arrival together — in 15-minute steps within a window (headline
+  ±⟦WINDOW⟧&nbsp;min). A greedy pass repeatedly moves the most-movable flight
+  out of the fullest bin into the least-loaded reachable bin, accepting a
+  move only if every bin that gains a flight stays strictly below its
+  airport-day's current peak — so peaks can only fall, never migrate.
+  Feasibility: consecutive legs flown by the same tail number must keep a
+  ground time of at least min(original&nbsp;turn,&nbsp;⟦TURN⟧&nbsp;min) — checked
+  across <em>all</em> airports, not just the five studied — and departures
+  never cross midnight. Flights whose feasibility can't be verified are
+  never moved. As an empirical stand-in for unpublished runway capacity, the
+  95th percentile of observed rolling-hour movements serves as each
+  airport's practical ceiling — an <em>assumption</em>, examined in the
+  limitations.</p>
+
+  <h2>Results (simulated)</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="v">−⟦PEAK_BIN_PCT⟧%</div>
+      <div class="l">peak 15-min bin load, mean daily peak across the five
+      airports, at ±⟦WINDOW⟧ min (simulated)</div></div>
+    <div class="kpi"><div class="v">−⟦PEAK_HOUR_PCT⟧%</div>
+      <div class="l">peak rolling-hour load, same basis (simulated)</div></div>
+    <div class="kpi"><div class="v">⟦SLOTS⟧</div>
+      <div class="l">movements/day of headroom freed in the formerly busiest
+      hours, summed over the five airports (simulated)</div></div>
+  </div>
+
+  <figure>
+    <img src="figures/demand_curves.png"
+         alt="Per-airport curves of scheduled movements per 15-minute bin, baseline in gray versus simulated re-timed schedule in blue. The re-timed curve is visibly flatter at the peaks.">
+    <figcaption>Scheduled demand by time of day (mean over days,
+    ⟦MONTH_NAME⟧ ⟦YEAR⟧): baseline in gray, simulated ±⟦WINDOW⟧-minute
+    re-timing in blue. Spikes flatten; the overall shape is preserved.</figcaption>
+  </figure>
+
+  <div class="tablewrap">
+  ⟦AIRPORT_TABLE⟧
+  </div>
+  <p class="footnote">Peak loads are means of daily maxima over the month.
+  "Slots freed" = baseline peak-hour load − re-timed peak-hour load: extra
+  movements schedulable in the formerly busiest hour without exceeding the
+  load the airport already handled at baseline. Because no flights are
+  added or removed, headroom summed over a whole day is conserved — the
+  peak hour is the only place capacity genuinely changes, which is why the
+  metric is defined there and nowhere else.</p>
+
+  <h2>Why a ±⟦WINDOW⟧-minute window?</h2>
+  <figure>
+    <img src="figures/sensitivity.png"
+         alt="Two panels showing peak congestion reduction percentage and peak-hour slots freed per day as the shift window grows from 15 to 60 minutes. Both rise steeply then flatten.">
+    <figcaption>Sensitivity of both headline metrics to the shift window
+    (simulated). Gains rise steeply at first and flatten — most of the
+    achievable smoothing is already available at small windows.</figcaption>
+  </figure>
+  <div class="tablewrap">
+  ⟦SENSITIVITY_TABLE⟧
+  </div>
+
+  <h2>Limitations — read these before quoting any number</h2>
+  <ul>
+    <li><strong>The capacity ceiling is an empirical proxy.</strong> The 95th
+      percentile of observed hourly movements is not a runway capacity
+      rating; real declared capacity varies with runway configuration and
+      weather.</li>
+    <li><strong>No airspace, weather, gate, crew, or passenger-connection
+      modeling.</strong> A shift that is aircraft-feasible may still be
+      infeasible for a crew, a gate, or a connecting bank — and hub banks
+      exist for commercial reasons this study does not price.</li>
+    <li><strong>Turnaround feasibility is tail-number-only</strong>, with a
+      single global 30-minute minimum; real minimum turns vary by aircraft
+      type, carrier, and station.</li>
+    <li><strong>Greedy heuristic, no optimality guarantee</strong> — results
+      are a floor for this model, not an operational plan.</li>
+    <li><strong>Hourly peaks compress much less than 15-minute peaks.</strong>
+      A small window flattens spikes but cannot drain an hour-wide plateau.
+      Both numbers are reported.</li>
+    <li><strong>One historical month.</strong> Current schedules differ.</li>
+  </ul>
+
+  <h2>Reproduce it</h2>
+<pre>git clone ⟦REPO_URL⟧
+cd flight-schedule-smoothing
+python3 -m pip install -r requirements.txt
+python3 src/fetch_data.py     # ~360 MB from BTS (12 monthly zips)
+python3 src/prepare.py        # select airports/month, clean, bin
+python3 src/metrics.py        # optimize at ±15/30/45/60 → results/summary.json
+python3 src/charts.py         # figures
+python3 -m pytest tests/ -q   # sanity assertions</pre>
+  <p class="footnote">Every knob (window, turnaround minimum, bin width,
+  capacity percentile, year) lives in <code>src/config.py</code>. All numbers
+  on this page are generated into <code>results/summary.json</code> by the
+  pipeline; none are typed by hand. Machine-readable results:
+  <a href="../results/summary.json">summary.json</a>.</p>
+
+  <p class="footnote">Built by Aarav Chadha as an independent extension of
+  flight-data work from The Data Mine (Purdue). Data: BTS, public domain.
+  Code: MIT.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Raw BTS monthly zips (~30 MB each): re-download with src/fetch_data.py.
+# Derived per-flight subsets and results ARE committed - BTS data is US
+# government work (public domain), and committing them lets the analysis
+# be reproduced from the optimizer onward without the full download.
+data/raw/
+__pycache__/
+.pytest_cache/
+*.part
+.DS_Store
