@@ -13,7 +13,39 @@ claims** of any kind. See [Limitations](#limitations).
 Results site: `docs/index.html` (GitHub Pages).
 All numbers: [`results/summary.json`](results/summary.json).
 
-<!-- RESULTS -->
+## Results (July 2025, ±30-min window — simulated)
+
+Airports: **ORD, ATL, DEN, DFW, CLT** — the 5 busiest
+in the US by 2025 scheduled movements; July was the busiest month at
+those airports (279,750 scheduled movements).
+
+- **Peak 15-min bin load: −38.43%** (mean daily peak, summed across airports)
+- **Peak rolling-hour load: −13.75%**
+- **Slots freed: 107.5 movements/day** of new headroom in the formerly busiest hours (sum over the five airports)
+
+| Airport | Peak 15-min (before → after) | Δ | Peak hour (before → after) | Δ | Slots freed / day | p95 hourly proxy |
+|---|---|---|---|---|---|---|
+| ORD | 60 → 39.2 | −34.66% | 173.2 → 154 | −11.08% | 19.2 | 158 |
+| ATL | 59.3 → 39 | −34.13% | 171.7 → 153.7 | −10.46% | 18 | 150 |
+| DEN | 66.4 → 38.7 | −41.66% | 181 → 151.8 | −16.13% | 29.2 | 154 |
+| DFW | 59.6 → 33 | −44.7% | 158.8 → 129.1 | −18.69% | 29.7 | 143 |
+| CLT | 33.5 → 21.7 | −35.26% | 97 → 85.5 | −11.84% | 11.5 | 93 |
+
+Peak loads are means of daily maxima. All values are simulated re-timings of
+historical schedules — see Limitations.
+
+### Sensitivity to the shift window
+
+| Window | Flights shifted | Peak 15-min bin | Peak hour | Slots freed / day (total) |
+|---|---|---|---|---|
+| ±15 min | 7,846 | −26.0% | −2.81% | 21.9 |
+| ±30 min | 21,262 | −38.43% | −13.75% | 107.5 |
+| ±45 min | 30,664 | −44.32% | −21.61% | 168.9 |
+| ±60 min | 33,270 | −45.65% | −23.36% | 182.7 |
+
+![Before/after demand curves](results/figures/demand_curves.png)
+![Sensitivity](results/figures/sensitivity.png)
+
 
 ## Data
 

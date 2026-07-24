@@ -91,12 +91,12 @@
   <ul>
     <li><strong>Source:</strong> Bureau of Transportation Statistics,
       <a href="https://www.transtats.bts.gov/ots/">Marketing Carrier On-Time
-      Performance</a> — US government public-domain data. ⟦YEAR⟧, all 12
+      Performance</a> — US government public-domain data. 2025, all 12
       months scanned for selection.</li>
-    <li><strong>Airports:</strong> ⟦AIRPORTS⟧ — the ⟦N_AIRPORTS⟧ busiest in
-      the US by scheduled movements (departures + arrivals) in ⟦YEAR⟧.</li>
-    <li><strong>Period:</strong> ⟦MONTH_NAME⟧ ⟦YEAR⟧ — the busiest single
-      month at those airports by the same count (⟦MONTH_MOVES⟧ scheduled
+    <li><strong>Airports:</strong> ORD, ATL, DEN, DFW, CLT — the 5 busiest in
+      the US by scheduled movements (departures + arrivals) in 2025.</li>
+    <li><strong>Period:</strong> July 2025 — the busiest single
+      month at those airports by the same count (279,750 scheduled
       movements).</li>
     <li><strong>Scheduled times, not actuals</strong> — this re-times plans,
       it does not model delays. Cancelled flights are dropped. Flight count
@@ -107,12 +107,12 @@
   <p>Scheduled movements are binned per airport per 15-minute bin per day
   (local time). Each flight may shift its whole schedule — departure and
   arrival together — in 15-minute steps within a window (headline
-  ±⟦WINDOW⟧&nbsp;min). A greedy pass repeatedly moves the most-movable flight
+  ±30&nbsp;min). A greedy pass repeatedly moves the most-movable flight
   out of the fullest bin into the least-loaded reachable bin, accepting a
   move only if every bin that gains a flight stays strictly below its
   airport-day's current peak — so peaks can only fall, never migrate.
   Feasibility: consecutive legs flown by the same tail number must keep a
-  ground time of at least min(original&nbsp;turn,&nbsp;⟦TURN⟧&nbsp;min) — checked
+  ground time of at least min(original&nbsp;turn,&nbsp;30&nbsp;min) — checked
   across <em>all</em> airports, not just the five studied — and departures
   never cross midnight. Flights whose feasibility can't be verified are
   never moved. As an empirical stand-in for unpublished runway capacity, the
@@ -122,12 +122,12 @@
 
   <h2>Results (simulated)</h2>
   <div class="kpis">
-    <div class="kpi"><div class="v">−⟦PEAK_BIN_PCT⟧%</div>
+    <div class="kpi"><div class="v">−38.43%</div>
       <div class="l">peak 15-min bin load, mean daily peak across the five
-      airports, at ±⟦WINDOW⟧ min (simulated)</div></div>
-    <div class="kpi"><div class="v">−⟦PEAK_HOUR_PCT⟧%</div>
+      airports, at ±30 min (simulated)</div></div>
+    <div class="kpi"><div class="v">−13.75%</div>
       <div class="l">peak rolling-hour load, same basis (simulated)</div></div>
-    <div class="kpi"><div class="v">⟦SLOTS⟧</div>
+    <div class="kpi"><div class="v">107.5</div>
       <div class="l">movements/day of headroom freed in the formerly busiest
       hours, summed over the five airports (simulated)</div></div>
   </div>
@@ -136,12 +136,21 @@
     <img src="figures/demand_curves.png"
          alt="Per-airport curves of scheduled movements per 15-minute bin, baseline in gray versus simulated re-timed schedule in blue. The re-timed curve is visibly flatter at the peaks.">
     <figcaption>Scheduled demand by time of day (mean over days,
-    ⟦MONTH_NAME⟧ ⟦YEAR⟧): baseline in gray, simulated ±⟦WINDOW⟧-minute
+    July 2025): baseline in gray, simulated ±30-minute
     re-timing in blue. Spikes flatten; the overall shape is preserved.</figcaption>
   </figure>
 
   <div class="tablewrap">
-  ⟦AIRPORT_TABLE⟧
+  <table>
+<thead><tr><th>Airport</th><th>Peak 15-min (before → after)</th><th>Δ</th><th>Peak hour (before → after)</th><th>Δ</th><th>Slots freed / day</th><th>p95 hourly proxy</th></tr></thead>
+<tbody>
+<tr><td>ORD</td><td>60 → 39.2</td><td>−34.66%</td><td>173.2 → 154</td><td>−11.08%</td><td>19.2</td><td>158</td></tr>
+<tr><td>ATL</td><td>59.3 → 39</td><td>−34.13%</td><td>171.7 → 153.7</td><td>−10.46%</td><td>18</td><td>150</td></tr>
+<tr><td>DEN</td><td>66.4 → 38.7</td><td>−41.66%</td><td>181 → 151.8</td><td>−16.13%</td><td>29.2</td><td>154</td></tr>
+<tr><td>DFW</td><td>59.6 → 33</td><td>−44.7%</td><td>158.8 → 129.1</td><td>−18.69%</td><td>29.7</td><td>143</td></tr>
+<tr><td>CLT</td><td>33.5 → 21.7</td><td>−35.26%</td><td>97 → 85.5</td><td>−11.84%</td><td>11.5</td><td>93</td></tr>
+</tbody>
+</table>
   </div>
   <p class="footnote">Peak loads are means of daily maxima over the month.
   "Slots freed" = baseline peak-hour load − re-timed peak-hour load: extra
@@ -151,7 +160,7 @@
   peak hour is the only place capacity genuinely changes, which is why the
   metric is defined there and nowhere else.</p>
 
-  <h2>Why a ±⟦WINDOW⟧-minute window?</h2>
+  <h2>Why a ±30-minute window?</h2>
   <figure>
     <img src="figures/sensitivity.png"
          alt="Two panels showing peak congestion reduction percentage and peak-hour slots freed per day as the shift window grows from 15 to 60 minutes. Both rise steeply then flatten.">
@@ -160,7 +169,15 @@
     achievable smoothing is already available at small windows.</figcaption>
   </figure>
   <div class="tablewrap">
-  ⟦SENSITIVITY_TABLE⟧
+  <table>
+<thead><tr><th>Window</th><th>Flights shifted</th><th>Peak 15-min bin</th><th>Peak hour</th><th>Slots freed / day (total)</th></tr></thead>
+<tbody>
+<tr><td>±15 min</td><td>7,846</td><td>−26.0%</td><td>−2.81%</td><td>21.9</td></tr>
+<tr><td>±30 min</td><td>21,262</td><td>−38.43%</td><td>−13.75%</td><td>107.5</td></tr>
+<tr><td>±45 min</td><td>30,664</td><td>−44.32%</td><td>−21.61%</td><td>168.9</td></tr>
+<tr><td>±60 min</td><td>33,270</td><td>−45.65%</td><td>−23.36%</td><td>182.7</td></tr>
+</tbody>
+</table>
   </div>
 
   <h2>Limitations — read these before quoting any number</h2>
@@ -185,8 +202,8 @@
   </ul>
 
   <h2>Reproduce it</h2>
-<pre>git clone ⟦REPO_URL⟧
-cd flight-schedule-smoothing
+<pre>git clone https://github.com/AaravChadha/flight-optimization-analysis
+cd flight-optimization-analysis
 python3 -m pip install -r requirements.txt
 python3 src/fetch_data.py     # ~360 MB from BTS (12 monthly zips)
 python3 src/prepare.py        # select airports/month, clean, bin

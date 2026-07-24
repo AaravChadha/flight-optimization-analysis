@@ -1,0 +1,139 @@
+{
+  "study": "Flight schedule smoothing - simulation on historical BTS data",
+  "claims_note": "All results are simulated re-timings of historical schedules under the stated assumptions. No operational, safety, or airspace conclusions are implied.",
+  "data": {
+    "source": "BTS Marketing Carrier On-Time Performance",
+    "year": 2025,
+    "month": 7,
+    "airports": [
+      "ORD",
+      "ATL",
+      "DEN",
+      "DFW",
+      "CLT"
+    ]
+  },
+  "config": {
+    "bin_minutes": 15,
+    "headline_window_min": 30,
+    "shift_step_min": 15,
+    "min_turnaround_min": 30,
+    "capacity_percentile": 95
+  },
+  "headline": {
+    "per_airport": {
+      "ORD": {
+        "mean_daily_max_bin_before": 60.03225806451613,
+        "mean_daily_max_bin_after": 39.225806451612904,
+        "peak_bin_reduction_pct": 34.66,
+        "abs_max_bin_before": 64,
+        "abs_max_bin_after": 42,
+        "mean_daily_max_hour_before": 173.19354838709677,
+        "mean_daily_max_hour_after": 154.0,
+        "peak_hour_reduction_pct": 11.08,
+        "slots_freed_per_day": 19.193548387096776,
+        "capacity_proxy_p95_hourly": 158.0,
+        "hour_windows_at_or_above_proxy_before": 155,
+        "hour_windows_at_or_above_proxy_after": 27
+      },
+      "ATL": {
+        "mean_daily_max_bin_before": 59.25806451612903,
+        "mean_daily_max_bin_after": 39.03225806451613,
+        "peak_bin_reduction_pct": 34.13,
+        "abs_max_bin_before": 77,
+        "abs_max_bin_after": 43,
+        "mean_daily_max_hour_before": 171.70967741935485,
+        "mean_daily_max_hour_after": 153.74193548387098,
+        "peak_hour_reduction_pct": 10.46,
+        "slots_freed_per_day": 17.967741935483872,
+        "capacity_proxy_p95_hourly": 150.0,
+        "hour_windows_at_or_above_proxy_before": 150,
+        "hour_windows_at_or_above_proxy_after": 95
+      },
+      "DEN": {
+        "mean_daily_max_bin_before": 66.35483870967742,
+        "mean_daily_max_bin_after": 38.70967741935484,
+        "peak_bin_reduction_pct": 41.66,
+        "abs_max_bin_before": 72,
+        "abs_max_bin_after": 40,
+        "mean_daily_max_hour_before": 181.03225806451613,
+        "mean_daily_max_hour_after": 151.83870967741936,
+        "peak_hour_reduction_pct": 16.13,
+        "slots_freed_per_day": 29.193548387096776,
+        "capacity_proxy_p95_hourly": 154.0,
+        "hour_windows_at_or_above_proxy_before": 147,
+        "hour_windows_at_or_above_proxy_after": 10
+      },
+      "DFW": {
+        "mean_daily_max_bin_before": 59.61290322580645,
+        "mean_daily_max_bin_after": 32.96774193548387,
+        "peak_bin_reduction_pct": 44.7,
+        "abs_max_bin_before": 68,
+        "abs_max_bin_after": 35,
+        "mean_daily_max_hour_before": 158.80645161290323,
+        "mean_daily_max_hour_after": 129.1290322580645,
+        "peak_hour_reduction_pct": 18.69,
+        "slots_freed_per_day": 29.677419354838708,
+        "capacity_proxy_p95_hourly": 143.0,
+        "hour_windows_at_or_above_proxy_before": 147,
+        "hour_windows_at_or_above_proxy_after": 0
+      },
+      "CLT": {
+        "mean_daily_max_bin_before": 33.483870967741936,
+        "mean_daily_max_bin_after": 21.677419354838708,
+        "peak_bin_reduction_pct": 35.26,
+        "abs_max_bin_before": 37,
+        "abs_max_bin_after": 23,
+        "mean_daily_max_hour_before": 97.03225806451613,
+        "mean_daily_max_hour_after": 85.54838709677419,
+        "peak_hour_reduction_pct": 11.84,
+        "slots_freed_per_day": 11.483870967741936,
+        "capacity_proxy_p95_hourly": 93.0,
+        "hour_windows_at_or_above_proxy_before": 179,
+        "hour_windows_at_or_above_proxy_after": 0
+      }
+    },
+    "overall": {
+      "peak_bin_reduction_pct": 38.43,
+      "peak_hour_reduction_pct": 13.75,
+      "slots_freed_per_day_total": 107.52
+    },
+    "stats": {
+      "n_flights": 678089,
+      "min_turnaround_min": 30,
+      "assertions": "all passed",
+      "window": 30,
+      "n_shifted": 21262
+    }
+  },
+  "sensitivity": [
+    {
+      "window_min": 15,
+      "n_shifted": 7846,
+      "peak_bin_reduction_pct": 26.0,
+      "peak_hour_reduction_pct": 2.81,
+      "slots_freed_per_day_total": 21.94
+    },
+    {
+      "window_min": 30,
+      "n_shifted": 21262,
+      "peak_bin_reduction_pct": 38.43,
+      "peak_hour_reduction_pct": 13.75,
+      "slots_freed_per_day_total": 107.52
+    },
+    {
+      "window_min": 45,
+      "n_shifted": 30664,
+      "peak_bin_reduction_pct": 44.32,
+      "peak_hour_reduction_pct": 21.61,
+      "slots_freed_per_day_total": 168.9
+    },
+    {
+      "window_min": 60,
+      "n_shifted": 33270,
+      "peak_bin_reduction_pct": 45.65,
+      "peak_hour_reduction_pct": 23.36,
+      "slots_freed_per_day_total": 182.65
+    }
+  ]
+}
