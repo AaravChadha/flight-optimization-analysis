@@ -33,8 +33,9 @@ those airports (279,750 scheduled movements).
 | DFW | 59.6 → 47.9 | −19.64% | 158.8 → 157.3 | −0.98% | 1.5 | 143 |
 | CLT | 33.5 → 25.7 | −23.22% | 97 → 93.4 | −3.76% | 3.6 | 93 |
 
-Peak loads are means of daily maxima. All values are simulated re-timings of
-historical schedules — see Limitations.
+Peak loads are means of daily maxima; totals are computed before rounding, so
+displayed components may not sum exactly. All values come from a simulated
+re-timing of historical schedules — see Limitations.
 
 ### Sensitivity to the shift window
 
@@ -45,7 +46,7 @@ historical schedules — see Limitations.
 | ±45 min | 15,764 | −35.32% | −11.27% | 88.1 |
 | ±60 min | 18,866 | −37.84% | −13.67% | 106.9 |
 
-Per airport (cells: peak 15-min bin reduction / peak-hour slots freed per day.)
+Per airport (cells: peak 15-min bin reduction / peak-hour slots freed per day)
 
 | Airport | ±15 min | ±30 min | ±45 min | ±60 min |
 |---|---|---|---|---|
@@ -59,7 +60,7 @@ Per airport (cells: peak 15-min bin reduction / peak-hour slots freed per day.)
 
 The busiest 15-min bin of the month: **ATL, 2025-07-07**,
 77 scheduled movements at 21:45.
-Re-timed, that day's max bin falls to 51 and its peak
+After re-timing, that day's max bin falls to 51 and its peak
 hour from 183 to 181 movements
 — while staying inside the airport's observed operating hours (movements are
 only placed into 15-min bins with ≥ 1
@@ -69,15 +70,15 @@ movement/day at baseline; airports are not all 24/7).
 
 - **Grid artifact, sized:** on a grid offset by 8 min
   (~half a bin), peak 15-min reduction is
-  **−9.65%** (vs
-  −29.0% on the optimizer's own grid); peak hour
-  −5.28% (vs
-  −6.44%). The gap is the binning artifact.
+  **9.65%** (vs
+  29.0% on the optimizer's own grid); peak-hour
+  reduction 5.28% (vs
+  6.44%). The gap within each pair is the binning artifact.
 - **Shoulder growth under the 1.5× cap** —
-  05:00–06:59: ORD +12.1%, ATL +0.0%, DEN -0.4%, DFW +11.6%, CLT +0.8%;
+  05:00–06:59: ORD +12.1%, ATL +0.0%, DEN −0.4%, DFW +11.6%, CLT +0.8%;
   22:00–23:59: ORD +0.0%, ATL +4.0%, DEN +0.0%, DFW +0.6%, CLT +1.6%.
 - **Weekday envelope:** 0.027% of shifted flight
-  endpoints land in a slot that airport did not use on that day of week.
+  endpoints land in a slot its airport did not use on that day of the week.
 
 ![Before/after demand curves](results/figures/demand_curves.svg)
 ![Sensitivity](results/figures/sensitivity.svg)
@@ -88,7 +89,7 @@ movement/day at baseline; airports are not all 24/7).
 ## Data
 
 - **Source:** Bureau of Transportation Statistics, *Marketing Carrier On-Time
-  Performance* (https://www.transtats.bts.gov/ots/), monthly prezipped CSVs.
+  Performance* (https://www.transtats.bts.gov/ots/), monthly pre-zipped CSVs.
   US government work, public domain — which is why a derived per-flight subset
   can be committed in `data/derived/` for reproducibility.
 - **Fields used** (verified against the actual 2025 header, not assumed):
@@ -231,7 +232,7 @@ Genuinely load-bearing caveats, not fine print:
   23/25-hour-day handling.
 - **The 15-minute shift grid matches the metric's grid**, which can flatter
   the bin-level number; the offset-grid robustness check in the results
-  sizes this artifact, and the rolling-hour metric is immune to it.
+  sizes this artifact, and the rolling-hour metric is far less sensitive to it.
 - **The greedy heuristic has no optimality guarantee.** Reported reductions
   are a lower bound on what an exact optimizer could achieve *within this
   model*, not an operational plan.
@@ -244,14 +245,14 @@ Genuinely load-bearing caveats, not fine print:
   deliberately to create connections; smoothing the banks has a commercial
   cost this study does not price.
 - Month-boundary edge: red-eye arrivals into day 1 (from the prior month)
-  and out of the last day are not visible to the metrics; both sit in
+  and red-eye departures out of the last day are not visible to the metrics; both sit in
   near-empty overnight bins and do not affect daytime peaks.
 
 ## Motivation context (not findings)
 
 Peak-period congestion at hub airports concentrates controller workload and
-drives delay propagation; the FAA manages it operationally through demand-
-management programs (e.g. slot administration at capacity-constrained
+drives delay propagation; the FAA manages it operationally through demand-management
+programs (e.g. slot administration at capacity-constrained
 airports, 14 CFR Part 93) and Ground Delay Programs. See e.g. FAA,
 *Airport Capacity Profiles* (2014–2023 updates), and Ball et al., *Total
 Delay Impact Study* (NEXTOR, 2010) on the cost of US flight delay. These

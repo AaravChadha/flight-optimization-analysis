@@ -232,7 +232,7 @@
   al., 2010). That context motivates the question — it is <strong>not</strong>
   a finding of this study.</p>
   <p>The question this study can answer with schedule data alone: if each
-  flight's departure could move by at most a small, fixed window, how much
+  flight's departure could move within a small, fixed window, how much
   flatter could the demand curve be — with the same flights, the same
   aircraft rotations, and no cancellations?</p>
 
@@ -249,9 +249,9 @@
     <li><strong>Period:</strong> July 2025 — the busiest single
       month at those airports by the same count (279,750 scheduled
       movements).</li>
-    <li><strong>Scheduled times, not actuals</strong> — this re-times plans,
-      it does not model delays. Cancelled flights are dropped. Flight count
-      is fixed: nothing is added, removed, or cancelled.</li>
+    <li><strong>Scheduled times, not actuals</strong> — this re-times plans; it does not
+      model delays. Cancelled flights are dropped. Flight count is fixed:
+      nothing is added, removed, or cancelled by the re-timing.</li>
   </ul>
 
   <h2>Method</h2>
@@ -335,13 +335,14 @@
   load the airport already handled at baseline. Because no flights are
   added or removed, headroom summed over a whole day is conserved — the
   peak hour is the only place capacity genuinely changes, which is why the
-  metric is defined there and nowhere else.</p>
+  metric is defined there and nowhere else. Totals are computed before
+  rounding, so components may not sum exactly.</p>
 
   <h2>Why a ±30-minute window?</h2>
   <figure>
     <img src="figures/sensitivity.svg"
          alt="Two panels showing peak congestion reduction percentage and peak-hour slots freed per day as the shift window grows from 15 to 60 minutes. Both rise steeply then flatten.">
-    <figcaption>Sensitivity of both headline metrics to the shift window
+    <figcaption>Sensitivity of the headline metrics to the shift window
     (simulated). Gains rise steeply at first and flatten — most of the
     achievable smoothing is already available at small windows.</figcaption>
   </figure>
@@ -392,8 +393,9 @@
   movements in the 21:45 bin. Under the simulated ±30-minute
   re-timing, that day's schedule flattens to a maximum of 51
   movements per bin, and its peak hour drops from 183
-  to 181 movements. Even the most extreme day in the study
-  stays within its airport's observed operating hours.</p>
+  to 181 movements. Even on the most extreme day in the
+  study, the re-timed schedule stays within the airport's observed
+  operating hours.</p>
   <figure>
     <img src="figures/worst_day.svg"
          alt="Single-day demand curve for the worst baseline day, baseline in gray versus simulated re-timed schedule in blue, with the peak bin annotated.">
@@ -409,15 +411,15 @@
       minutes (~half a bin), the peak 15-min reduction is
       <strong>9.65%</strong> vs 29.0% on the
       optimizer's own grid, and the peak-hour reduction is
-      5.28% vs 6.44%. The gap between each pair is
+      5.28% vs 6.44%. The gap within each pair is
       the size of the grid artifact.</li>
     <li><strong>Shoulder growth under the cap.</strong> Load change in the
-      05:00–06:59 shoulder by airport: ORD +12.1%, ATL +0.0%, DEN -0.4%, DFW +11.6%, CLT +0.8%; in 22:00–23:59:
+      05:00–06:59 shoulder by airport: ORD +12.1%, ATL +0.0%, DEN −0.4%, DFW +11.6%, CLT +0.8%; in 22:00–23:59:
       ORD +0.0%, ATL +4.0%, DEN +0.0%, DFW +0.6%, CLT +1.6%.</li>
     <li><strong>Weekday envelope.</strong> The operating envelope uses a
       monthly mean, so a slot could be open on average yet unused on, say,
       Sundays. Checked per day-of-week: 0.027% of shifted flight
-      endpoints land in a slot that airport did not use on that weekday.</li>
+      endpoints land in a slot its airport did not use on that weekday.</li>
   </ul>
 
   <h2>Limitations — read these before quoting any number</h2>
@@ -439,7 +441,7 @@
       the schedule's banks were built to protect, and crew report/rest
       windows are untouched. Block times are held fixed even though taxi
       times vary by time of day. (July has no DST transition; re-running on
-      March or November would need explicit 23/25-hour-day handling.)</li>
+      March or November data would need explicit 23/25-hour-day handling.)</li>
     <li><strong>The operating-hours envelope is inferred from the schedule
       itself</strong> (bins with ≥ 1 movement/day at baseline),
       not from published curfews or staffing data. It prevents moves into

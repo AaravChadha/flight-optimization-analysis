@@ -188,7 +188,7 @@ def sensitivity_chart(sens, title_period):
         arrowprops={"arrowstyle": "-", "color": SLATE, "linewidth": 0.7},
     )
     ax1.set_xlim(11, 92)
-    ax1.set_ylabel("peak reduction, % (all airports)")
+    ax1.set_ylabel("peak reduction, % (5 airports)")
     ax1.set_title("Peak congestion reduction vs window", loc="left",
                   fontsize=11, fontweight=600)
 
