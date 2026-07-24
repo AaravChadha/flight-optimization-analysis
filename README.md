@@ -5,8 +5,8 @@ shift within a small window (±15–60 minutes), how much lower could peak-perio
 congestion be — without adding, removing, or cancelling a single flight — and
 how much capacity headroom would that free at the peak?
 
-**Answer style.** Everything here is a *simulated re-timing of historical
-schedules under stated assumptions*. This study does not model real airspace,
+**Answer style.** Every result here comes from a *simulated re-timing of
+historical schedules under stated assumptions*. This study does not model real airspace,
 weather, gates, crews, or passengers, and it makes **no operational or safety
 claims** of any kind. See [Limitations](#limitations).
 

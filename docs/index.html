@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Flight schedule smoothing — a simulation study on historical BTS data</title>
+<title>Flight schedule smoothing — a simulation study on historical US flight schedules</title>
 <style>
   @font-face {
     font-family: "B612 Mono"; src: url("fonts/B612Mono-Regular.woff2") format("woff2");
@@ -200,9 +200,9 @@
 <body>
 <main>
   <h1>Flight schedule smoothing</h1>
-  <p class="subtitle">A one-day simulation study on historical BTS schedule data
-  — how much peak-hour congestion could small departure-time shifts remove,
-  with zero flights cut?</p>
+  <p class="subtitle">A simulation study on historical US flight-schedule data,
+  built in a day — how much peak-hour congestion could small departure-time
+  shifts remove, with zero flights cut?</p>
 
   <p class="meta">
     <span>DATA<b>BTS 2025</b></span>
@@ -214,7 +214,7 @@
   <div class="scope">
     <span class="kicker">SCOPE</span>
     <p><strong>What this is (and isn't).</strong> Every number
-    on this page is a <em>simulated re-timing of historical schedules</em> under
+    on this page comes from a <em>simulated re-timing of historical schedules</em> under
     the assumptions stated below. Nothing here models real airspace, weather,
     gates, crews, or passengers, and nothing here is an operational or safety
     claim.</p>
@@ -227,7 +227,7 @@
   delay propagation across the network and concentrates air traffic control
   workload; the FAA manages demand at capacity-constrained airports through
   slot administration (14&nbsp;CFR Part&nbsp;93) and Ground Delay Programs, and the
-  economic cost of US flight delay was estimated in the tens of billions of
+  economic cost of US flight delay was estimated at tens of billions of
   dollars per year by the NEXTOR <em>Total Delay Impact Study</em> (Ball et
   al., 2010). That context motivates the question — it is <strong>not</strong>
   a finding of this study.</p>
@@ -240,8 +240,8 @@
   <ul>
     <li><strong>Source:</strong> Bureau of Transportation Statistics,
       <a href="https://www.transtats.bts.gov/ots/">Marketing Carrier On-Time
-      Performance</a> — US government public-domain data. 2025, all 12
-      months scanned for selection.</li>
+      Performance</a> — US government public-domain data; all 12
+      months of 2025 were scanned for selection.</li>
     <li><strong>Airports:</strong> ORD, ATL, DEN, DFW, CLT — the 5 busiest in
       this dataset by scheduled movements (departures + arrivals) in 2025.
       BTS on-time data covers US reporting marketing carriers only — no
@@ -390,8 +390,8 @@
   <p>The single busiest 15-minute bin of the month was at
   <strong>ATL on 2025-07-07</strong>: 77 scheduled
   movements in the 21:45 bin. Under the simulated ±30-minute
-  re-timing that bin's day flattens to a maximum of 51
-  movements per bin, and the day's peak hour drops from 183
+  re-timing, that day's schedule flattens to a maximum of 51
+  movements per bin, and its peak hour drops from 183
   to 181 movements. Even the most extreme day in the study
   stays within its airport's observed operating hours.</p>
   <figure>
